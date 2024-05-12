@@ -9,11 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{
-    collections::{HashMap, HashSet},
-    ops::ControlFlow,
-    sync::Mutex,
-};
+use std::{collections::HashMap, ops::ControlFlow};
 
 use super::{
     commands::{EngineCmd, KVExp, DBX, F, FR, FS, KVS, KVSR, R},
@@ -424,6 +420,12 @@ impl Drop for Engine {
 
 #[tokio::test]
 async fn test_db_exec() {
+    use super::commands::kvexp;
+    use std::{
+        collections::{HashMap, HashSet},
+        sync::Mutex,
+    };
+
     let opts = EngineOptions::new()
         .with_database_name(["test-1", "test-2"])
         .with_path("_db_test")
@@ -489,9 +491,7 @@ async fn test_db_exec() {
             EngineCmd::Search(
                 (
                     dbs.clone(),
-                    (Mutex::new(Box::new(|(k, v)| {
-                        k.starts_with(b"_") || v.starts_with(b"n")
-                    }))),
+                    (kvexp(|(k, v)| k.starts_with(b"_") || v.starts_with(b"n"))),
                 ),
                 tx,
             ),
@@ -530,13 +530,7 @@ async fn test_db_exec() {
         // Search again
         let (tx, rx) = tokio::sync::oneshot::channel();
         db.exec(
-            EngineCmd::Search(
-                (
-                    dbs.clone(),
-                    (Mutex::new(Box::new(|(k, _v)| k.starts_with(b"not-")))),
-                ),
-                tx,
-            ),
+            EngineCmd::Search((dbs.clone(), (kvexp(|(k, _v)| k.starts_with(b"not-")))), tx),
             None,
         )
         .await
@@ -551,9 +545,7 @@ async fn test_db_exec() {
             EngineCmd::DeleteIf(
                 (
                     dbs.clone(),
-                    (Mutex::new(Box::new(|(k, v)| {
-                        k.starts_with(b"_") || v.starts_with(b"n")
-                    }))),
+                    (kvexp(|(k, v)| k.starts_with(b"_") || v.starts_with(b"n"))),
                 ),
                 tx,
             ),
@@ -569,9 +561,7 @@ async fn test_db_exec() {
             EngineCmd::Search(
                 (
                     dbs.clone(),
-                    (Mutex::new(Box::new(|(k, v)| {
-                        k.starts_with(b"_") || v.starts_with(b"n")
-                    }))),
+                    (kvexp(|(k, v)| k.starts_with(b"_") || v.starts_with(b"n"))),
                 ),
                 tx,
             ),

@@ -37,6 +37,12 @@ pub type FS = HashSet<F>;
 
 pub type KVExp = Mutex<Box<dyn FnMut(KV) -> bool + Send>>;
 
+pub fn kvexp(
+    x: impl FnMut(KV) -> bool + Send + 'static,
+) -> Mutex<Box<dyn FnMut(KV) -> bool + Send>> {
+    Mutex::new(Box::new(x))
+}
+
 pub enum EngineCmd {
     Read((DBX, F), oneshot::Sender<FR>),
     Write((DBX, KV), oneshot::Sender<R>),
