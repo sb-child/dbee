@@ -1,0 +1,36 @@
+[package]
+name = "dbee"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+speedb = { version = "*", git = "https://github.com/speedb-io/rust-speedb", features = [
+    "serde",
+    "multi-threaded-cf",
+] }
+
+serde = { version = "*", features = ["derive"] }
+serde_json = { version = "*" }
+toml = { version = "*" }
+thiserror = { version = "*" }
+anyhow = { version = "*", features = ["backtrace"] }
+tokio = { version = "*", features = ["full"] }
+chrono = "*"
+# tokio-stream = { version = "*" }
+# tokio-cron-scheduler = { version = "*" }
+# rmp-serde = { version = "*" }
+# serde_bytes = "*"
+# rand = { version = "*" }
+# tracing = "*"
+# tracing-subscriber = "*"
+# ansi_term = "*"
+# rc4 = "*"
+# hex = "*"
+
+
+[profile.release]
+opt-level = "z"
+debug = false
+lto = true
+panic = "abort"
+codegen-units = 1
